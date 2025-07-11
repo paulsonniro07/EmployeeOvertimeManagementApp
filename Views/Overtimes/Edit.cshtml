@@ -1,0 +1,134 @@
+﻿@model EmployeeOvertimeManagementApp.Models.Overtime
+
+@{
+    ViewBag.Title = "Edit Overtime";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="box box-primary">
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.OverTimeId)
+        @Html.HiddenFor(m => m.EmployeeId)
+
+        <div class="box-body form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeId, "NIK", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-6">
+                    @Html.DropDownList("EmployeeId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.TimeStart, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="input-group date" id="timeStartPicker">
+                        @Html.TextBoxFor(model => model.TimeStart, new { @class = "form-control", placeholder = "Finish Time", autocomplete = "off" })
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.TimeStart, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.TimeFinish, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="input-group date" id="timeFinishPicker">
+                        @Html.TextBoxFor(model => model.TimeFinish, new { @class = "form-control", placeholder = "Finish Time", autocomplete = "off" })
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.TimeFinish, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.ActualHours, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(model => model.ActualHours, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.ActualHours, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.CalculatedHours, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(model => model.CalculatedHours, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.CalculatedHours, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="box-footer">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="@Url.Action("Index")" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $(function () {
+            $('#timeStartPicker').datetimepicker({
+                format: 'DD-MM-YYYY HH:mm'
+            });
+
+            $('#timeFinishPicker').datetimepicker({
+                format: 'DD-MM-YYYY HH:mm',
+                useCurrent: false
+            });
+
+            $("#timeStartPicker").on("dp.change", function (e) {
+                $('#timeFinishPicker').data("DateTimePicker").minDate(e.date);
+                calculateOtHours();
+            });
+
+            $("#timeFinishPicker").on("dp.change", function (e) {
+                calculateOtHours();
+            });
+
+            function calculateOtHours() {
+                const start = moment($('#TimeStart').val(), 'DD-MM-YYYY HH:mm');
+                const finish = moment($('#TimeFinish').val(), 'DD-MM-YYYY HH:mm');
+
+                if (!start.isValid() || !finish.isValid())
+                    return;
+
+                const diff = finish.diff(start, 'minutes');
+
+                console.log(diff);
+                const hours = diff / 60;
+
+                if (hours <= 0) {
+                    alert("Time Finish must be after Time Start");
+                    $('#TimeFinish').val('');
+                    $('#ActualHours').val('');
+                    $('#CalculatedHours').val('');
+                    return;
+                }
+
+                if (hours > 3) {
+                    alert("Actual OT hours cannot exceed 3.");
+                    $('#TimeFinish').val('');
+                    $('#ActualHours').val('');
+                    $('#CalculatedHours').val('');
+                    return;
+                }
+
+                $('#ActualHours').val(hours.toFixed(2));
+                $('#CalculatedHours').val((hours * 2).toFixed(2));
+            }
+
+            calculateOtHours();
+        });
+    </script>
+}

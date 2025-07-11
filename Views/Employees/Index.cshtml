@@ -1,0 +1,56 @@
+﻿@model IEnumerable<EmployeeOvertimeManagementApp.Models.Employee>
+@{
+    ViewBag.Title = "Employee List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="box">
+    <div class="box-header">
+        <h3 class="box-title">List of Employee Data</h3>
+        <div class="box-tools">
+            <a href="@Url.Action("Create")" class="btn btn-primary">Add New</a>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>NIK</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int i = 1; }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@i</td>
+                        <td>@item.NIK</td>
+                        <td>@item.EmployeeName</td>
+                        <td>@item.Department.DepartmentName</td>
+                        <td>@item.Position</td>
+                        <td>
+                            <a href="@Url.Action("Edit", new { id = item.EmployeeId })" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="@Url.Action("Delete", new { id = item.EmployeeId })" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer clearfix">
+        <ul class="pagination pagination-sm no-margin pull-right">
+            @for (int p = 1; p <= ViewBag.TotalPages; p++)
+            {
+                <li class="@(p == ViewBag.CurrentPage ? "active" : "")">
+                    <a href="@Url.Action("Index", new { page = p })">@p</a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

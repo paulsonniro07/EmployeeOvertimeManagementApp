@@ -1,0 +1,114 @@
+﻿@model EmployeeOvertimeManagementApp.Models.Employee
+
+@{
+    ViewBag.Title = "Edit Employee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var positionOptions = new List<string> { "Operator", "Technician", "Leader", "Supervisor", "Manager" };
+}
+
+<div class="box box-warning">
+    <div class="box-header with-border">
+        <h3 class="box-title">Edit Employee</h3>
+    </div>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(model => model.EmployeeId)
+
+        <div class="box-body">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.NIK, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.NIK, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.NIK, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.EmployeeName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Position, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.Position,
+                        new SelectList(positionOptions, Model.Position),
+                        "-- Select Position --", new { @class = "form-control", id = "Position" })
+                    @Html.ValidationMessageFor(model => model.Position, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2">Allowances</label>
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(m => m.BpjsAllowance) BPJS
+                        </label>
+                    </div>
+                    <div class="checkbox" id="mealAllowance">
+                        <label>
+                            @Html.CheckBoxFor(m => m.MealAllowance) Meal
+                        </label>
+                    </div>
+                    <div class="checkbox" id="laptopAllowance">
+                        <label>
+                            @Html.CheckBoxFor(m => m.LaptopAllowance) Laptop
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.DepartmentId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.DepartmentId,
+                        new SelectList(ViewBag.Departments as List<EmployeeOvertimeManagementApp.Models.Department>, "DepartmentId", "DepartmentName", Model.DepartmentId),
+                        "-- Select Department --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" class="btn btn-warning">Save Changes</button>
+                <a href="@Url.Action("Index")" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(function () {
+            $('#Position').change(function () {
+                var position = $(this).val();
+
+                if (position === 'Supervisor' || position === 'Manager') {
+                    $('#laptopAllowance').show();
+                } else {
+                    $('#laptopAllowance').hide();
+                    $('#LaptopAllowance').prop('checked', false);
+                }
+
+                if (position === 'Manager') {
+                    $('#mealAllowance').hide();
+                    $('#MealAllowance').prop('checked', false);
+                } else {
+                    $('#mealAllowance').show();
+                }
+            }).trigger('change');
+        });
+    </script>
+}
